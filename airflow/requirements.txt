@@ -1,0 +1,4 @@
+apache-airflow==3.0.1
+dbt-postgres
+docker
+astronomer-cosmos[dbt-postgres, docker]

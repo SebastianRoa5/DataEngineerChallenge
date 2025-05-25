@@ -1,0 +1,51 @@
+name: challenge
+services:
+  postgres:
+    image: postgres
+    restart: always
+    shm_size: 256mb
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-secret}
+    volumes:
+    - ./warehouse_postgres/init-script:/docker-entrypoint-initdb.d/
+
+  airflow:
+    build:
+      context: .
+      dockerfile: ./airflow/Dockerfile
+      target: dev
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
+      - POSTGRES_USER=${POSTGRES_USER:-airflow}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-airflow}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE:-fire_incidents_db_dev}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS=true #for dev
+      - AIRFLOW_CONN_POSTGRES_DEFAULT=postgresql+psycopg2://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD:-airflow}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-fire_incidents_db_dev}
+      - DBT_CONTAINER=dbt
+    volumes:
+      - ./airflow:/project/airflow
+      - ./dbt/fire_incidents_transformations:/project/airflow/dags/dbt/fire_incidents_transformations  # Mount your dbt project
+      - /var/run/docker.sock:/var/run/docker.sock 
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+
+  dbt:
+    build:
+      context: .
+      dockerfile: ./dbt/Dockerfile
+    depends_on:
+      - postgres
+      - airflow
+    command: sleep infinity
+    
