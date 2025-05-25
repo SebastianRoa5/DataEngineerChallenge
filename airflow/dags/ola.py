@@ -12,7 +12,7 @@ with DAG(
 
 ) as bifrost_workflow_dag:
     def print_hello(**context):
-        return "Hello World..!"
+        return "Hello World..! d"
 
 
     hello_operator = PythonOperator(dag=bifrost_workflow_dag, task_id="hello-operator",
