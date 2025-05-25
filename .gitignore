@@ -1,0 +1,9 @@
+*.db
+*.cfg*
+*.generated*
+*/logs/*
+*__pycache__/
+target/
+dbt_packages/
+logs/
+*.gitkeep*
