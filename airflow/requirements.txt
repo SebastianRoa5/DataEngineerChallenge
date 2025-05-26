@@ -1,4 +1,7 @@
-apache-airflow==3.0.1
+apache-airflow-providers-postgres
 dbt-postgres
 docker
 astronomer-cosmos[dbt-postgres, docker]
+pandas
+sodapy
+postgres
