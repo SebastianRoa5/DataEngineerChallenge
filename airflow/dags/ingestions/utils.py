@@ -24,7 +24,7 @@ def get_fire_incidents(app_token, key_csv_path, **context):
     last_updated_format = last_updated.strftime('%Y-%m-%dT%H:%M:%S') if last_updated else None
     where_clause = f"data_loaded_at > '{last_updated_format}'" if last_updated else None
     logger.info(f"Where clause: {where_clause}")
-    results = client.get("wr8u-xric", content_type='csv', limit=100, where=where_clause)
+    results = client.get("wr8u-xric", content_type='csv', limit=1000000, where=where_clause)
     # Convert to pandas DataFrame
     results_df = pd.DataFrame.from_records(results)
     results_df.columns = results_df.iloc[0, :]
