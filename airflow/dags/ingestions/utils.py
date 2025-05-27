@@ -9,8 +9,6 @@ from great_expectations.core.expectation_suite import (
     ExpectationSuite
 )
 from airflow.exceptions import AirflowSkipException
-
-
 import os
 import json
 
