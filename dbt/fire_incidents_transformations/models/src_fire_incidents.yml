@@ -1,0 +1,20 @@
+version: 2
+sources:
+  - name: raw
+    database: fire_incidents_db_dev
+    schema: raw
+    freshness:
+      warn_after: {count: 30, period: day}  # Warn if data is older than 24 hours
+      error_after: {count: 90, period: day}  # Error if data is older than 48 hours
+    loaded_at_field: updated_at  # Field that indicates when the data was loaded
+    tables:
+      - name: fire_incidents
+        identifier: fire_incidents
+        description: "Source table containing raw fire incident data"
+        columns:
+          - name: id
+            description: "Unique identifier for each fire incident"
+            tests:
+              - unique
+              - not_null
+    
