@@ -1,9 +1,15 @@
+--METADATABASE INITIALIZATION
+CREATE USER airflow_metadata WITH PASSWORD 'airflow_metadata';
+CREATE DATABASE airflow_metada WITH OWNER airflow_metadata;
+
+
 --DATABASE INITIALIZATION
 CREATE DATABASE fire_incidents_db_dev;
 \connect fire_incidents_db_dev;
 CREATE SCHEMA raw;
 CREATE SCHEMA refined;
 CREATE SCHEMA curated;
+
 
 
 -- USER AIRFLOW
