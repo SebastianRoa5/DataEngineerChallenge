@@ -9,8 +9,6 @@ API_TOKEN= Variable.get("FIRE_INCIDENTS_API_TOKEN")
 
 with DAG(
     dag_id="fire_incidents_ingestion",
-    start_date=datetime(2024, 1, 1),
-    schedule_interval="@daily",
     catchup=False,
     tags=["ingestion"],
 ) as dag:
