@@ -16,7 +16,7 @@ def get_fire_incidents(app_token, **context):
     last_updated_format = last_updated.strftime('%Y-%m-%dT%H:%M:%S') if last_updated else None
     where_clause = f"data_loaded_at > '{last_updated_format}'" if last_updated else None
     logger.info(f"Where clause: {where_clause}")
-    results = client.get("wr8u-xric", content_type='csv', limit=100, where=where_clause)
+    results = client.get("wr8u-xric", content_type='csv', limit=1000000, where=where_clause)
     # Convert to pandas DataFrame
     results_df = pd.DataFrame.from_records(results)
     results_df.columns = results_df.iloc[0, :]
@@ -64,7 +64,7 @@ def insert_data(**context):
 def decide_load(**context):
     last_loaded = context['ti'].xcom_pull(task_ids='get_last_loaded')
     last_loaded_value = last_loaded[0][0] if last_loaded and last_loaded[0] else None
-    if not last_loaded_value:
+    if last_loaded_value:
         context['ti'].xcom_push(key='last_updated', value=last_loaded_value)
         context['ti'].xcom_push(key='first_load', value=False)
         logger.info("Not first load, inserting by row.")
