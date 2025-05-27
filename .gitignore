@@ -1,5 +1,4 @@
 *.db
-*.cfg*
 *.generated*
 */logs/*
 *__pycache__/
@@ -8,3 +7,7 @@ dbt_packages/
 logs/
 *.gitkeep*
 *.user.yml
+*.env
+package-lock.yml
+*.pid
+*password.txt
