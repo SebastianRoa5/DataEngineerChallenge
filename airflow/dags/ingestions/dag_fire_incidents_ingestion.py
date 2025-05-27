@@ -3,11 +3,12 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from datetime import datetime
-from ingestions.utils import get_fire_incidents, insert_data, decide_load
+from ingestions.utils import get_fire_incidents, insert_csv_raw_data, decide_load, validate_csv_data
 import os
 
 API_TOKEN= Variable.get("FIRE_INCIDENTS_API_TOKEN")
-#API_TOKEN = os.environ("FIRE_INCIDENTS_API_TOKEN")
+expectation_suite_path = os.path.join(os.environ["AIRFLOW_HOME"], "dags", "ingestions", "expectations", "expectation_raw_fire_incidents.json")
+
 
 with DAG(
     dag_id="fire_incidents_ingestion",
@@ -18,7 +19,7 @@ with DAG(
     get_last_loaded = PostgresOperator(
         task_id='get_last_loaded',
         postgres_conn_id='postgres_default',
-        sql="last_added_fire_incident.sql",
+        sql="sql/last_added_fire_incident.sql",
         params={ "schema_name": "raw", "table_name": "fire_incidents"}
     )
 
@@ -33,15 +34,29 @@ with DAG(
         python_callable=get_fire_incidents,
         op_kwargs={
             "app_token": API_TOKEN,
+            "key_csv_path": "fire_incidents_csv_path"
+        },
+        provide_context=True,
+    )
+
+    validation_task = PythonOperator(
+        task_id='validate_fire_incidents_batch',
+        python_callable= validate_csv_data,
+        op_kwargs={
+            "key_csv_path": "fire_incidents_csv_path",
+            "expectation_suite_path": expectation_suite_path
         },
         provide_context=True,
     )
 
     insert_task = PythonOperator(
         task_id='insert_fire_incidents',
-        python_callable=insert_data,
-        # first_load will be pulled from XCom in the function
+        python_callable=insert_csv_raw_data,
+        op_kwargs={
+            "table": "fire_incidents",
+            "key_csv_path": "fire_incidents_csv_path"
+        },
         provide_context=True,
     )
 
-    get_last_loaded >> decide_load_task >> fetch_task >> insert_task
+    get_last_loaded >> decide_load_task >> fetch_task >> validation_task >> insert_task

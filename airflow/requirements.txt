@@ -5,3 +5,4 @@ astronomer-cosmos[dbt-postgres, docker]
 pandas
 sodapy
 postgres
+great-expectations==0.18.21
