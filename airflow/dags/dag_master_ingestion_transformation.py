@@ -22,7 +22,7 @@ with DAG(
         wait_for_completion=True,
         execution_date='{{ ds }}',
         reset_dag_run=True,
-        poke_interval=30,
+        poke_interval=10,
     )
     
     # Trigger the transformation DAG
@@ -32,7 +32,7 @@ with DAG(
         wait_for_completion=True,
         execution_date='{{ ds }}',
         reset_dag_run=True,
-        poke_interval=30,
+        poke_interval=10,
     )
     
     end = DummyOperator(task_id="end")

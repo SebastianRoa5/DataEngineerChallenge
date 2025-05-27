@@ -42,5 +42,6 @@ my_cosmos_dag = DbtDag(
         source_rendering_behavior=SourceRenderingBehavior.WITH_TESTS_OR_FRESHNESS
     ),
     dag_id="dbt_fire_incidents_transformations",
-    tags= ["transformations"]
+    tags= ["transformations"],
+    schedule=None,
 )

@@ -4,13 +4,16 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from datetime import datetime
 from ingestions.utils import get_fire_incidents, insert_data, decide_load
+import os
 
 API_TOKEN= Variable.get("FIRE_INCIDENTS_API_TOKEN")
+#API_TOKEN = os.environ("FIRE_INCIDENTS_API_TOKEN")
 
 with DAG(
     dag_id="fire_incidents_ingestion",
     catchup=False,
     tags=["ingestion"],
+    schedule=None
 ) as dag:
     get_last_loaded = PostgresOperator(
         task_id='get_last_loaded',
