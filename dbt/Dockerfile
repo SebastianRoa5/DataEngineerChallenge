@@ -5,14 +5,8 @@ RUN apt-get update && apt-get install -y libpq-dev postgresql-client
 
 COPY ./dbt/requirements.txt requirements.txt
 
+# Install dbt and other Python dependencies
 RUN pip install -r requirements.txt
-
-ENV POSTGRES_DATABASE=fire_incidents_db_dev
-ENV POSTGRES_HOST=host.docker.internal
-ENV POSTGRES_PASSWORD=dbt
-ENV POSTGRES_PORT=5432
-ENV POSTGRES_SCHEMA=refined
-ENV POSTGRES_USER=dbt
 
 RUN mkdir /root/.dbt
 COPY ./dbt/fire_incidents_transformations/profiles.yml /root/.dbt/profiles.yml
