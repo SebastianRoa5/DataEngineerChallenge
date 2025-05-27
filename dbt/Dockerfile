@@ -17,3 +17,4 @@ COPY ./dbt/fire_incidents_transformations/ dags/dbt/fire_incidents_transformatio
 COPY ./dbt/fire_incidents_transformations/dbt_project.yml dags/dbt/fire_incidents_transformations/dbt_project.yml
 
 WORKDIR /dags/dbt/fire_incidents_transformations
+RUN dbt deps
