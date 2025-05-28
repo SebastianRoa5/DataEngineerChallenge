@@ -2,8 +2,10 @@ from airflow.models import Variable
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
+from airflow.operators.dummy import DummyOperator
+from airflow.utils.trigger_rule import TriggerRule
 from datetime import datetime
-from ingestions.utils import get_fire_incidents, insert_csv_raw_data, decide_load, validate_csv_data
+from utils.utils import get_fire_incidents, insert_csv_raw_data, decide_load, validate_csv_data
 import os
 
 API_TOKEN= Variable.get("FIRE_INCIDENTS_API_TOKEN")
@@ -16,6 +18,11 @@ with DAG(
     tags=["ingestion"],
     schedule=None
 ) as dag:
+    
+    begin = DummyOperator(
+        task_id='begin'
+        )
+
     get_last_loaded = PostgresOperator(
         task_id='get_last_loaded',
         postgres_conn_id='postgres_default',
@@ -59,4 +66,10 @@ with DAG(
         provide_context=True,
     )
 
-    get_last_loaded >> decide_load_task >> fetch_task >> validation_task >> insert_task
+    end = DummyOperator(
+        task_id='end'
+
+    )
+
+    begin >> get_last_loaded >> decide_load_task >> fetch_task >> validation_task >> insert_task
+    

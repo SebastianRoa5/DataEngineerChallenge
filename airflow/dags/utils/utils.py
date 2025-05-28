@@ -9,6 +9,8 @@ from great_expectations.core.expectation_suite import (
     ExpectationSuite
 )
 from airflow.exceptions import AirflowSkipException
+from airflow.utils.state import State
+from airflow.models import DagRun
 import os
 import json
 
@@ -16,6 +18,10 @@ import json
 logger = LoggingMixin().log
 
 def get_fire_incidents(app_token, key_csv_path, **context):
+    """
+    Fetch fire incidents data from the Socrata API and save it to a temporary CSV file.
+    This function is designed to be used in an Airflow DAG.
+    """
     client = Socrata(domain="data.sfgov.org", app_token=app_token)
     last_updated = context['ti'].xcom_pull(key='last_updated')
     logger.info(f"Last updated timestamp: {last_updated}")
@@ -43,6 +49,9 @@ def get_fire_incidents(app_token, key_csv_path, **context):
 
 
 def insert_csv_raw_data(table,key_csv_path,**context):
+    """
+    Insert or update data from a CSV file into the raw table in PostgreSQL
+    """
     first_load = context['ti'].xcom_pull(key='first_load', task_ids='decide_load')
     csv_path = context['ti'].xcom_pull(key=key_csv_path)
     if not csv_path or not os.path.exists(csv_path):
@@ -74,6 +83,9 @@ def insert_csv_raw_data(table,key_csv_path,**context):
     os.remove(csv_path)
 
 def decide_load(**context):
+    """
+    Decide whether to perform a first load or incremental load based on the last loaded timestamp
+    """
     last_loaded = context['ti'].xcom_pull(task_ids='get_last_loaded')
     last_loaded_value = last_loaded[0][0] if last_loaded and last_loaded[0] else None
     if last_loaded_value:
@@ -87,6 +99,9 @@ def decide_load(**context):
 
 
 def validate_csv_data(key_csv_path,expectation_suite_path,**context):
+    """
+    Validate the CSV data against a Great Expectations Expectation Suite
+    """
     csv_path = context['ti'].xcom_pull(key=key_csv_path)
     context = gx.get_context()
     validator = context.sources.pandas_default.read_csv(csv_path)
@@ -97,3 +112,30 @@ def validate_csv_data(key_csv_path,expectation_suite_path,**context):
     # Test the Expectation:
     validation_results = validator.validate(expectation)
     logger.info(f"Validation results: {validation_results}")
+
+
+def check_upstream_skips(dag_id,**context):
+    """
+    Check if any tasks in the upstream DAG were skipped
+    Returns True if we should trigger the downstream DAG, False to skip
+    """
+    dag_runs = DagRun.find(dag_id=dag_id, external_trigger=True)
+    dag_runs.sort(key=lambda x: x.execution_date, reverse=True)
+    upstream_dag_run = dag_runs[0] if dag_runs else None
+   
+    if not upstream_dag_run:
+        return True  # no previous run, proceed with trigger
+    
+    skipped_tasks = [
+        ti for ti in upstream_dag_run.get_task_instances()
+        if ti.state == State.SKIPPED
+    ]
+    
+    if skipped_tasks:
+        context['ti'].log.info(
+            f"Skipping downstream DAG trigger because these tasks were skipped: "
+            f"{[t.task_id for t in skipped_tasks]}"
+        )
+        raise AirflowSkipException(
+            "Upstream tasks were skipped, skipping downstream DAG trigger."
+        )

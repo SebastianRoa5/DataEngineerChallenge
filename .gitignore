@@ -11,3 +11,5 @@ logs/
 package-lock.yml
 *.pid
 *password.txt
+*.cfg
+webserver_config.py
