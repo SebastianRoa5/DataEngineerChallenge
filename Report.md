@@ -46,7 +46,7 @@ The data warehouse is implemented in Postgres (`fire_incidents_db_dev`) and foll
 To make Airflow work for ingestion:
 - Use `admin` as the username and the value stored in `standalone_admin_password.txt` for the password for logging into Airflow.
 - **Turn on (unpause) the relevant DAGs in the Airflow UI.**
-- **Add your API token as an Airflow Variable** named `FIRE_INCIDENTS_API_TOKEN` (otherwise the ingestion DAG will not be displayed or will fail).
+- **Add your API token as an Airflow Variable** named `FIRE_INCIDENTS_API_TOKEN` (otherwise the ingestion DAG will not be displayed or will fail). Also please wait one minute and reload the UI after the variable is uploaded.
 
 ![alt text](image.png)
 

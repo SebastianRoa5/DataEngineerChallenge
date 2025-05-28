@@ -1,6 +1,6 @@
 # DataEngineerChallenge
 
-This repository contains a complete data engineering solution for the DataEngineerChallenge, including orchestration (Airflow), transformation (dbt), and a Postgres data warehouse. The project is designed for local development and testing using Docker Compose.
+This repository provides a comprehensive, containerized data engineering solution for the DataEngineerChallenge. It includes orchestration with Apache Airflow, data transformation with dbt, and a Postgres data warehouse. The project is optimized for local development and testing using Docker Compose, ensuring easy setup and reproducibility. For a detailed guide on using the model—including ingestion, transformation, and orchestration processes—please refer to the Report.md file.
 
 ---
 
