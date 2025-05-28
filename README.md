@@ -61,4 +61,3 @@ This will clean up all subprojects using their respective Makefiles.
 - The system is designed for easy local development, but can be adapted for production with appropriate changes to environment variables, secrets management, and resource scaling.
 
 ---
-```
