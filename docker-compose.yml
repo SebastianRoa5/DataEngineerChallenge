@@ -1,0 +1,55 @@
+name: challenge
+services:
+  postgres:
+    image: postgres
+    restart: always
+    shm_size: 256mb
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-secret}
+    volumes:
+    - ./warehouse_postgres/init-script:/docker-entrypoint-initdb.d/
+
+  airflow:
+    build:
+      context: .
+      dockerfile: ./airflow/Dockerfile
+      target: dev
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
+      - POSTGRES_USER=${POSTGRES_USER:-airflow}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-airflow}s
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE:-fire_incidents_db_dev}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${DB_METADATA_AIRFLOW_USER:-airflow_metadata}:${DB_METADATA_AIRFLOW_PASSWORD:-airflow_metadata}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_METADATA_DB:-airflow_metada}
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=True
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__KILLED_TASK_CLEANUP_TIME=604800
+      - AIRFLOW_CONN_POSTGRES_DEFAULT=postgresql://${DB_AIRFLOW_USER:-airflow}:${DB_AIRFLOW_PASSWORD:-airflow}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-fire_incidents_db_dev}
+      - DBT_HOST=${POSTGRES_HOST:-postgres}
+      - DBT_USER=${DBT_USER:-dbt}
+      - DBT_PASS=${DBT_PASSWORD:-dbt}
+      - DBT_DBNAME=${POSTGRES_DATABASE:-fire_incidents_db_dev}
+      - DBT_SCHEMA=${DBT_SCHEMA:-refined}
+      - DBT_PORT=${POSTGRES_PORT:-5432}
+      - FIRE_INCIDENTS_API_TOKEN=${FIRE_INCIDENTS_API_TOKEN}
+    volumes:
+      - ./airflow:/project/airflow
+      - ./dbt/fire_incidents_transformations:/project/airflow/dags/dbt/fire_incidents_transformations  # Mount your dbt project
+      - /var/run/docker.sock:/var/run/docker.sock 
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+
+  dbt:
+    build:
+      context: .
+      dockerfile: ./dbt/Dockerfile

@@ -1,0 +1,15 @@
+*.db
+*.generated*
+*/logs/*
+*__pycache__/
+target/
+dbt_packages/
+logs/
+*.gitkeep*
+*.user.yml
+*.env
+package-lock.yml
+*.pid
+*password.txt
+*.cfg
+webserver_config.py

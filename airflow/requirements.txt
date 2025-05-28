@@ -1,0 +1,8 @@
+apache-airflow-providers-postgres==5.10.2
+dbt-postgres==1.9.0
+docker==7.1.0
+astronomer-cosmos[dbt-postgres, docker]==1.10.1
+pandas==2.2.3
+sodapy==2.2.0
+postgres==4.0
+great-expectations==0.18.21

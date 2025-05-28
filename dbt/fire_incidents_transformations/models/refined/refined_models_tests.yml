@@ -1,0 +1,12 @@
+version: 2
+models:
+  - name: fire_incidents_stg
+    description: "A staging model for fire incidents data"
+
+  - name: aggregated_fire_incidents
+    description: "An aggregated model for fire incidents data"
+    columns:
+      - name: neighborhood_district
+        description: "The neighborhood district where the fire incident occurred"
+        tests:
+           - string_not_empty

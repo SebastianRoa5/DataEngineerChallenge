@@ -1,0 +1,22 @@
+fire_incidents_transformations:
+  outputs:
+    dev:
+      type: postgres
+      threads: 10
+      host: "{{ env_var('DBT_HOST', 'postgres') }}"
+      port: "{{ env_var('DBT_PORT', '5432') | int }}"
+      user: "{{ env_var('DBT_USER', 'dbt') }}"
+      pass: "{{ env_var('DBT_PASS', 'dbt') }}"
+      dbname: "{{ env_var('DBT_DBNAME', 'fire_incidents_db_dev') }}"
+      schema: "{{ env_var('DBT_SCHEMA', 'refined') }}"
+    prod:
+      type: postgres
+      threads: [1 or more]
+      host: [host]
+      port: [port]
+      user: [prod_username]
+      pass: [prod_password]
+      dbname: [dbname]
+      schema: [prod_schema]
+
+  target: dev
