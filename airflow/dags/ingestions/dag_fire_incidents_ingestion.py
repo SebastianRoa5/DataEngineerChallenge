@@ -71,5 +71,5 @@ with DAG(
 
     )
 
-    begin >> get_last_loaded >> decide_load_task >> fetch_task >> validation_task >> insert_task
+    begin >> get_last_loaded >> decide_load_task >> fetch_task >> validation_task >> insert_task >> end
     
